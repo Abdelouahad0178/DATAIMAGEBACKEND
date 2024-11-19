@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de TVA</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style moderne pour la page de mot de passe */
+        #password-protect {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #43cea2, #185a9d);
+            color: white;
+            text-align: center;
+        }
+
+        #password-protect h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-family: 'Poppins', Arial, sans-serif;
+        }
+
+        #password-protect h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-family: 'Poppins', Arial, sans-serif;
+            color: #ffd700;
+        }
+
+        .password-container {
+            position: relative;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        #password-input {
+            padding: 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        #password-protect button {
+            padding: 15px 30px;
+            font-size: 1rem;
+            color: white;
+            background: linear-gradient(90deg, #16a085, #2980b9);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, background-color 0.3s;
+            margin: 10px;
+        }
+
+        #password-protect button:hover {
+            transform: translateY(-5px);
+            background: linear-gradient(90deg, #2980b9, #16a085);
+        }
+
+        #password-protect p {
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #ffd1d1;
+            display: none;
+        }
+
+        .cancel-button {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+
+        .cancel-button:hover {
+            background: linear-gradient(90deg, #c0392b, #e74c3c);
+        }
+
+        /* Modale pour afficher les détails */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="password-protect">
+        <h2>Accès Sécurisé</h2>
+        <h3>Page : Gestion de TVA</h3>
+        <div class="password-container">
+            <input type="password" id="password-input" placeholder="Entrez le mot de passe">
+            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+        </div>
+        <button onclick="checkPassword()">Entrer</button>
+        <button class="cancel-button" onclick="cancelAccess()">Annuler</button>
+        <p id="error-message">Mot de passe incorrect. Réessayez.</p>
+    </div>
+
+    <div id="content" style="display:none;">
+        <header>
+            <nav>
+                <a href="./index.html">Accueil</a>
+                <a href="./gestion_factures.html">Gestion des Factures</a>
+                <a href="./gestion_banque.html">Gestion de Banque</a>
+            </nav>
+            <h1>Gestion de TVA</h1>
+        </header>
+
+        <div class="filters">
+            <input type="text" id="search" placeholder="Rechercher une facture...">
+            <select id="month-filter">
+                <option value="">Tous les mois</option>
+                <option value="01">Janvier</option>
+                <option value="02">Février</option>
+                <option value="03">Mars</option>
+                <option value="04">Avril</option>
+                <option value="05">Mai</option>
+                <option value="06">Juin</option>
+                <option value="07">Juillet</option>
+                <option value="08">Août</option>
+                <option value="09">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
+            </select>
+            <select id="year-filter">
+                <option value="">Toutes les années</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+            </select>
+        </div>
+        <main id="factures-container"></main>
+
+        <!-- Modale pour afficher les détails -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <img id="modal-image" src="" alt="Aperçu de l'image" />
+                <p id="modal-details"></p>
+                <button onclick="imprimerImage()">Imprimer l'image</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function checkPassword() {
+            const password = document.getElementById("password-input").value;
+            const correctPassword = "tva2024";
+            if (password === correctPassword) {
+                document.getElementById("password-protect").style.display = "none";
+                document.getElementById("content").style.display = "block";
+            } else {
+                document.getElementById("error-message").style.display = "block";
+            }
+        }
+
+        function cancelAccess() {
+            window.location.href = "index.html";
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("password-input");
+            const toggleIcon = document.querySelector(".toggle-password");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.textContent = "🙈";
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.textContent = "👁️";
+            }
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

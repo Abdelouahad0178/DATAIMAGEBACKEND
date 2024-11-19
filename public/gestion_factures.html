@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Factures</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Accès protégé par mot de passe -->
+    <div id="password-protect">
+        <h2>Accès Sécurisé</h2>
+        <h3>Page : Gestion des Factures</h3>
+        <div class="password-container">
+            <input type="password" id="password-input" placeholder="Entrez le mot de passe">
+            <button onclick="checkPassword()">Entrer</button>
+            <p id="error-message" style="display:none; color:red;">Mot de passe incorrect. Réessayez.</p>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div id="content" style="display:none;">
+        <header>
+            <nav>
+                <a href="./index.html">Accueil</a>
+                <a href="./gestion_banque.html">Gestion de Banque</a>
+                <a href="./gestion_tva.html">Gestion de TVA</a>
+            </nav>
+            <h1>Gestion des Factures</h1>
+        </header>
+
+        <!-- Section des filtres -->
+        <div class="filters">
+            <input type="text" id="search" placeholder="Rechercher par nom...">
+            <select id="month-filter">
+                <option value="">Tous les mois</option>
+                <option value="01">Janvier</option>
+                <option value="02">Février</option>
+                <option value="03">Mars</option>
+                <option value="04">Avril</option>
+                <option value="05">Mai</option>
+                <option value="06">Juin</option>
+                <option value="07">Juillet</option>
+                <option value="08">Août</option>
+                <option value="09">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
+            </select>
+            <select id="year-filter">
+                <option value="">Toutes les années</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+            </select>
+        </div>
+
+        <!-- Section des actions -->
+        <div class="actions">
+            <button id="add-facture-btn" class="btn-primary">Ajouter une facture</button>
+        </div>
+
+        <!-- Conteneur des factures -->
+        <main id="factures-container"></main>
+
+        <!-- Modal Ajouter une facture -->
+        <div id="add-facture-popup" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAddFacturePopup()">&times;</span>
+                <h2>Ajouter une nouvelle facture</h2>
+                <form id="add-facture-form">
+                    <label for="facture-name">Nom :</label>
+                    <input type="text" id="facture-name" required>
+                    <label for="facture-date">Date :</label>
+                    <input type="date" id="facture-date" required>
+                    <label for="facture-image">Importer une image :</label>
+                    <input type="file" id="facture-image" accept="image/*" required>
+                    <button type="submit" class="btn-primary">Ajouter</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Modifier une facture -->
+        <div id="modify-facture-popup" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModifyPopup()">&times;</span>
+                <h2>Modifier la facture</h2>
+                <form id="modify-facture-form">
+                    <label for="modify-facture-name">Nom :</label>
+                    <input type="text" id="modify-facture-name" required>
+                    <label for="modify-facture-date">Date :</label>
+                    <input type="date" id="modify-facture-date" required>
+                    <label for="modify-facture-image">Importer une nouvelle image :</label>
+                    <input type="file" id="modify-facture-image" accept="image/*">
+                    <button type="submit" class="btn-primary">Modifier</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Image Preview -->
+        <div id="image-modal" class="modal">
+            <div class="modal-content">
+                <img id="modal-image" src="" alt="Facture">
+                <button id="cancel-image-modal" class="btn-primary">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour vérifier le mot de passe
+        function checkPassword() {
+            const password = document.getElementById("password-input").value;
+            const correctPassword = "factures123"; // Définissez votre mot de passe ici
+            if (password === correctPassword) {
+                document.getElementById("password-protect").style.display = "none";
+                document.getElementById("content").style.display = "block";
+            } else {
+                document.getElementById("error-message").style.display = "block";
+            }
+        }
+
+        // Fonction pour fermer la modal "Ajouter"
+        function closeAddFacturePopup() {
+            document.getElementById("add-facture-popup").classList.remove("show");
+        }
+
+        // Fonction pour fermer la modal "Modifier"
+        function closeModifyPopup() {
+            document.getElementById("modify-facture-popup").classList.remove("show");
+        }
+
+        // Fonction pour ouvrir la modal "Ajouter"
+        document.getElementById('add-facture-btn').addEventListener('click', () => {
+            document.getElementById("add-facture-popup").classList.add("show");
+        });
+
+        // Fonction pour gérer l'image par défaut en cas d'erreur de chargement
+        document.addEventListener('error', (event) => {
+            if (event.target.tagName === 'IMG') {
+                event.target.src = '/images/default.png'; // Image par défaut en cas d'erreur
+            }
+        }, true);
+
+        // Gérer la soumission du formulaire d'ajout de facture
+        document.getElementById('add-facture-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('facture-name').value;
+            const date = document.getElementById('facture-date').value;
+            const imageInput = document.getElementById('facture-image');
+            const imageFile = imageInput.files[0];
+
+            if (!imageFile) {
+                alert('Veuillez sélectionner une image.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('date', date);
+            formData.append('image', imageFile);
+
+            fetch('/api/factures', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Facture ajoutée:', data);
+                closeAddFacturePopup();
+                loadFactures();  // Rechargez les factures affichées
+            })
+            .catch(err => console.error('Erreur lors de l\'ajout de la facture:', err));
+        });
+
+        // Fonction pour charger les factures depuis l'API
+        function loadFactures() {
+            fetch('/api/factures')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('factures-container');
+                    container.innerHTML = '';
+                    data.forEach(facture => {
+                        const factureElement = document.createElement('div');
+                        factureElement.classList.add('facture');
+                        factureElement.innerHTML = `
+                            <img src="${facture.image || '/images/default.png'}" alt="${facture.name}" onclick="openImageModal('${facture.image}')">
+                            <p>${facture.name} - ${new Date(facture.date).toLocaleDateString()}</p>
+                            <div class="facture-actions">
+                                <button onclick="editFacture('${facture._id}')">Modifier</button>
+                                <button onclick="deleteFacture('${facture._id}')">Supprimer</button>
+                            </div>
+                        `;
+                        container.appendChild(factureElement);
+                    });
+                });
+        }
+
+        // Fonction pour modifier une facture
+        function editFacture(id) {
+            fetch(`/api/factures/${id}`)
+                .then(response => response.json())
+                .then(facture => {
+                    document.getElementById('modify-facture-name').value = facture.name;
+                    document.getElementById('modify-facture-date').value = facture.date;
+                    document.getElementById('modify-facture-popup').classList.add('show');
+                });
+        }
+
+        // Fonction pour supprimer une facture
+        function deleteFacture(id) {
+            if (confirm('Voulez-vous vraiment supprimer cette facture ?')) {
+                fetch(`/api/factures/${id}`, {
+                    method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Facture supprimée:', data);
+                    loadFactures();
+                })
+                .catch(err => console.error('Erreur lors de la suppression:', err));
+            }
+        }
+
+        // Modal Image Preview
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('image-modal');
+            const modalImage = document.getElementById('modal-image');
+            modalImage.src = imageSrc;
+            modal.classList.add('show');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            modal.classList.remove('show');
+        }
+
+        // Charger les factures au démarrage
+        document.addEventListener('DOMContentLoaded', loadFactures);
+    </script>
+
+    <script src="script.js"></script>
+</body>
+</html>
