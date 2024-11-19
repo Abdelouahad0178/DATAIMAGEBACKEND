@@ -29,7 +29,9 @@ function displayFactures(factures) {
         factureElement.className = 'facture';
 
         factureElement.innerHTML = `
-            <img src="${facture.image}" alt="Facture ${facture.name}" onerror="this.src='/images/default.png';">
+            <img src="${facture.image}" alt="Facture ${facture.name}" 
+                 onclick="openImageModal('${facture.image}')" 
+                 onerror="this.src='/images/default.png';">
             <p>${facture.name} - ${new Date(facture.date).toLocaleDateString()}</p>
             <div class="facture-actions">
                 <button class="btn-modify" data-id="${facture._id}">Modifier</button>
@@ -197,8 +199,35 @@ function deleteFacture(factureId) {
     }
 }
 
+// Modal Image Preview
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    modalImage.src = imageSrc;
+    modal.classList.add('show');
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    modal.classList.remove('show');
+}
+
+// Imprimer l'image du modal
+function printImage() {
+    const modalImage = document.getElementById('modal-image');
+    const printWindow = window.open('', '', 'height=600,width=800');
+    
+    printWindow.document.write('<html><head><title>Imprimer l\'image</title></head><body>');
+    printWindow.document.write('<img src="' + modalImage.src + '" style="width: 100%; height: auto;">');
+    printWindow.document.write('</body></html>');
+    
+    printWindow.document.close(); // Nécessaire pour IE
+    printWindow.print(); // Lance l'impression
+}
+
 // Initialisation des événements
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-facture-btn').addEventListener('click', openAddFacturePopup);
+    document.getElementById('cancel-image-modal').addEventListener('click', closeImageModal);
     loadFactures();
 });
